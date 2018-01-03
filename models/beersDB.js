@@ -38,13 +38,14 @@ module.exports = {
   // function to add a beer to the collection.
   addOneBeer(beer) {
     return db.tx('beerInsertion', async (t) => {
-      /* insert a new entry into beers, grab the beer id */
+      /* insert a new entry into beers, grab the beer id.  Wait until the query has been processed, then store the id into variable beerID */
       const { id: beerID } = await t.one(`
         INSERT INTO beer (name, brewery, description)
         VALUES ($/name/, $/brewery/, $/description/)
         RETURNING id
       `, beer);
 
+      /* then, insert that beerID, as well as the typeID into the x-ref table, and return the beerID */
       await t.one(`
         INSERT INTO x_ref_table (beer_id, style_type_id)
         VALUES ($1, $2)
@@ -61,11 +62,13 @@ module.exports = {
   deleteOneBeer(id) {
     console.log(id);
     return db.tx('beerDeletion', async (t) => {
+      /* you must use a transaction because one function cannot handle multiple queries.  first, delete the beer from the x-ref table */
        t.none(`
         DELETE FROM x_ref_table
         WHERE beer_id = $1
         `, id);
 
+      /*then, delete the beer from the beer table */
       await t.none(`
         DELETE FROM beer
         WHERE id = $1
