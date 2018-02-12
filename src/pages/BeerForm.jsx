@@ -19,9 +19,11 @@ class BeerForm extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(change) {
-    const name = change.target.name;
-    const value = change.target.value;
+/* the purpose of the handleChange function is to handle / update multi-forms.  So name maps to name on the input, and value maps to value on the input, and they both have a corresponding element in class state. */
+//so you name the function handleChange, you pass in 'event' as the argument so that the event that it is .  Create a var
+handleChange(event) {
+    const name = event.target.name;
+    const value = event.target.value;
     this.setState({
       [name]: value,
     });
@@ -39,9 +41,13 @@ class BeerForm extends Component {
 
       {/* It's its an edit for then update for that id, if its add then just post new state. */}
         <form className={this.props.isadd ? 'addForm' : 'editForm'}
+
+          // figure out what value is stored in isAdd.. true means add. False means edit
         onSubmit={this.props.isadd
-          ? change => this.props.beerSubmit('Put', change, this.state )
-          : change => this.props.beerSubmit('Post' , change,
+          {/* do this for add */}
+          ? event => this.props.beerSubmit('Put', event, this.state )
+        {/* do this for edit, you now have an id and info so populate form before editing */}
+          : event => this.props.beerSubmit('Post' , event,
             this.state, this.props.beer.id) }>
 
           <div className="formEntry">
